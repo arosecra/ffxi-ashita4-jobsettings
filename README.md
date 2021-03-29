@@ -1,0 +1,1 @@
+# ffxi-ashita4-jobsettings
