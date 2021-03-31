@@ -63,11 +63,11 @@ ashita.events.register('d3d_present', 'jobsettings_present_cb', function ()
 	libs2imgui.set_left_drawer_window(addon.name);
     if jobsettings_window.is_open then
         if imgui.Begin(addon.name, jobsettings_window.is_open, windowStyleFlags) then
-           imgui.SetCursorPosX(450);
-           if(imgui.SmallButton("v")) then
-               jobsettings_window.is_open = false;
-           end
-           imgui.Separator();
+            imgui.SetCursorPosX(450);
+            if(imgui.SmallButton("v")) then
+                jobsettings_window.is_open = false;
+            end
+            imgui.Separator();
 
 
            
@@ -78,13 +78,13 @@ ashita.events.register('d3d_present', 'jobsettings_present_cb', function ()
                 local mainjob = jobs[party:GetMemberMainJob(i)];
                 local subjob = jobs[party:GetMemberSubJob(i)];
                 local name = party:GetMemberName(i);
-                
+
                 if mainjob ~= nil then --alter egos have no job
                 
                     character_treenode.draw(runtime_config, name, mainjob, subjob);
                 end
             end
-        
+
             end
         imgui.End();
     end
