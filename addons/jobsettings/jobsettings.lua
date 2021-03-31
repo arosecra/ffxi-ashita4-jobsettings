@@ -52,10 +52,12 @@ ashita.events.register('d3d_beginscene', 'jobsettings_beginscene_callback1', fun
                         local setting_values = libs2config.get_string_table(addon.name, "Settings", setting .. '.Values');
                         local default = AshitaCore:GetConfigurationManager():GetString(addon.name, "Settings", setting .. '.Default');
 
-                        local default_index, default_value = setting_values:find(function(index, value)
-                            return value == default;
-                        end);
-                        runtime_config[name][setting_name] = default_index;
+                        for j=0,#setting_values do
+                            if setting_values[j] == default then
+                                runtime_config[name][setting_name] = j;
+                            end
+                        end
+                        
                     end);
             end
 
@@ -123,40 +125,6 @@ ashita.events.register('d3d_present', 'jobsettings_present_cb', function ()
                         end
 
                     end);
-
-
-                    --local item_curr_index = 2;
-                    --if imgui.BeginCombo("Items", settings[item_curr_index], 0) then
-                    --    for j=1,3 do
-                    --        local is_selected = (item_curr_index == j);
-                    --        if(imgui.Selectable(settings[j], is_selected)) then
-                    --            print(j)
-                    --            item_curr_index = j;
-                    --        end
-                    --        if is_selected then
-                    --            imgui.SetItemDefaultFocus();
-                    --        end
-                    --    end
-                    --    imgui.EndCombo();
-                    --end
-                    
-                    --const char* items[] = { "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO" };
-                    --static int item_current_idx = 0; // Here we store our selection data as an index.
-                    --const char* combo_label = items[item_current_idx];  // Label to preview before opening the combo (technically it could be anything)
-                    --if (ImGui::BeginCombo("combo 1", combo_label, flags))
-                    --{
-                    --    for (int n = 0; n < IM_ARRAYSIZE(items); n++)
-                    --    {
-                    --        const bool is_selected = (item_current_idx == n);
-                    --        if (ImGui::Selectable(items[n], is_selected))
-                    --            item_current_idx = n;
-                    --    
-                    --        // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-                    --        if (is_selected)
-                    --            ImGui::SetItemDefaultFocus();
-                    --    }
-                    --    ImGui::EndCombo();
-                    --}
                 end
             end
         end
