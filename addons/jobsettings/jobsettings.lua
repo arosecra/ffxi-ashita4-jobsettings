@@ -11,6 +11,7 @@ require('common');
 local libs2config = require('org_github_arosecra/config');
 local libs2imgui = require('org_github_arosecra/imgui');
 local jobs = require('org_github_arosecra/jobs');
+local macros_configuration = require('org_github_arosecra/macros/macros_configuration');
 
 local setting = require('setting');
 local character_treenode = require('character_treenode');
@@ -26,6 +27,7 @@ local runtime_config = {
 ashita.events.register('load', 'jobsettings_load_cb', function ()
     print("[jobsettings] 'load' event was called.");
 	AshitaCore:GetConfigurationManager():Load(addon.name, 'jobsettings\\jobsettings.ini');
+    macros_configuration.load();
 end);
 
 ashita.events.register('command', 'jobsettings_command_cb', function (e)
@@ -59,7 +61,6 @@ ashita.events.register('d3d_present', 'jobsettings_present_cb', function ()
 	end
 	
 	local windowStyleFlags = libs2imgui.gui_style_table_to_var("imguistyle", "left_drawer", "window.style");
-	local tableStyleFlags = libs2imgui.gui_style_table_to_var("imguistyle", addon.name, "table.style");
 	libs2imgui.set_left_drawer_window(addon.name);
     if jobsettings_window.is_open then
         if imgui.Begin(addon.name, jobsettings_window.is_open, windowStyleFlags) then
@@ -68,8 +69,6 @@ ashita.events.register('d3d_present', 'jobsettings_present_cb', function ()
                 jobsettings_window.is_open = false;
             end
             imgui.Separator();
-
-
            
             local memoryManager = AshitaCore:GetMemoryManager();
             local party = memoryManager:GetParty();
