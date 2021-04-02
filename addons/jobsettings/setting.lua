@@ -14,15 +14,22 @@ setting.default_settings_for_char = function(runtime_config, name, mainjob, subj
         settings:each(function(setting_array_name, setting_index)
             local setting_name = AshitaCore:GetConfigurationManager():GetString(addon.name, "Settings", setting_array_name .. '.Name');
             local setting_values = libs2config.get_string_table(addon.name, "Settings", setting_array_name .. '.Values');
-            local default = AshitaCore:GetConfigurationManager():GetString(addon.name, "Settings", setting_array_name .. '.Default');
-            for j=0,#setting_values do
-                if setting_values[j] == default then
-                    runtime_config[name][setting_name] = j;
-                    setting.run_macro(setting_name, setting_values[j]);
-                end
-            end
+            local default_value = AshitaCore:GetConfigurationManager():GetString(addon.name, "Settings", setting_array_name .. '.Default');
             
+            if setting_name ~= nil and setting_values ~= nil then
+                setting.find_and_apply_default(runtime_config, name, setting_name, setting_values, default_value);
+            end
         end);
+    end
+end
+
+setting.find_and_apply_default = function(runtime_config, name, setting_name, setting_values, default_value)
+
+    for j=0,#setting_values do
+        if setting_values[j] == default_value then
+            runtime_config[name][setting_name] = j;
+            setting.run_macro(setting_name, setting_values[j]);
+        end
     end
 end
 
