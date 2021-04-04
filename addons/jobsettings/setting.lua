@@ -17,27 +17,42 @@ setting.default_settings_for_char = function(runtime_config, name, mainjob, subj
             local default_value = AshitaCore:GetConfigurationManager():GetString(addon.name, "Settings", setting_array_name .. '.Default');
             
             if setting_name ~= nil and setting_values ~= nil then
-                setting.find_and_apply_default(runtime_config, name, setting_name, setting_values, default_value);
+                setting.find_and_apply_default(runtime_config, name, setting_array_name, setting_name, setting_values, default_value);
+            else
+                print('Could not set default for ' .. setting_array_name);
             end
         end);
     end
 end
 
-setting.find_and_apply_default = function(runtime_config, name, setting_name, setting_values, default_value)
+setting.find_and_apply_default = function(runtime_config, name, setting_array_name, setting_name, setting_values, default_value)
 
     for j=0,#setting_values do
         if setting_values[j] == default_value then
             runtime_config[name][setting_name] = j;
-            setting.run_macro(setting_name, setting_values[j]);
+            setting.run_macro(setting_array_name, setting_name, setting_values[j], name);
         end
     end
 end
 
-setting.run_macro = function(setting_name, setting_value)
-    local macro_id = AshitaCore:GetConfigurationManager():GetString(addon.name, "Settings", setting_name .. '.' .. setting_value .. '.Macro');
+setting.run_macro = function(setting_array_name, setting_name, setting_value, name)
+    local macro_id = AshitaCore:GetConfigurationManager():GetString(addon.name, "Settings", setting_array_name .. '.' .. setting_value .. '.Macro');
+
+    local parameters = T{Name = name}
+    local additional_parameters = libs2config.get_string_table(addon.name, "Settings", setting_array_name .. '.Parameters')
+    if additional_parameters ~= nil then
+        --parameters = parameters:extend(additional_parameters)
+
+        additional_parameters:each(function(value, key)
+            parameters[tostring(key)] = value;
+        end);
+    end
+
     if macro_id ~= nil then
         local macro = macros_configuration.get_macro_by_id(macro_id)
-        macros_runner.run_macro(macro);
+        macros_runner.run_macro(macro, parameters);
+    else
+        print('Macro for ' .. setting_array_name .. ' was not found.');
     end
 end
 
