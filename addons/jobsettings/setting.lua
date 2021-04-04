@@ -1,5 +1,4 @@
 
-
 local libs2config = require('org_github_arosecra/config');
 local macros_configuration = require('org_github_arosecra/macros/macros_configuration');
 local macros_runner = require('org_github_arosecra/macros/macrorunner');
