@@ -17,7 +17,7 @@ local setting = require('setting');
 local character_treenode = require('character_treenode');
 
 local jobsettings_window = {
-    is_open                 = { false }
+    is_open                 = false
 };
 
 local runtime_config = {
