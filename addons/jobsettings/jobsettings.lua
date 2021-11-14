@@ -46,7 +46,7 @@ ashita.events.register('d3d_beginscene', 'jobsettings_beginscene_callback1', fun
 		local mainjob = jobs[party:GetMemberMainJob(i)];
 		local subjob = jobs[party:GetMemberSubJob(i)];
 		local name = party:GetMemberName(i);
-        if mainjob ~= nil then
+        if mainjob ~= nil and name ~= nil then
             setting.default_settings_for_char(runtime_config, name, mainjob, subjob);
         end
 	end
@@ -56,7 +56,9 @@ end);
 ashita.events.register('d3d_present', 'jobsettings_present_cb', function ()
 	
 	local playerEntity = GetPlayerEntity();
-	if playerEntity == nil then
+    local memoryManager = AshitaCore:GetMemoryManager();
+    local party = memoryManager:GetParty();
+	if playerEntity == nil or party == nil then
 		return;
 	end
 	
@@ -70,7 +72,6 @@ ashita.events.register('d3d_present', 'jobsettings_present_cb', function ()
             end
             imgui.Separator();
            
-            local memoryManager = AshitaCore:GetMemoryManager();
             local party = memoryManager:GetParty();
            
             for i=0,5 do
@@ -78,7 +79,7 @@ ashita.events.register('d3d_present', 'jobsettings_present_cb', function ()
                 local subjob = jobs[party:GetMemberSubJob(i)];
                 local name = party:GetMemberName(i);
 
-                if mainjob ~= nil then --alter egos have no job
+                if mainjob ~= nil and name ~= nil then --alter egos have no job
                 
                     character_treenode.draw(runtime_config, name, mainjob, subjob);
                 end

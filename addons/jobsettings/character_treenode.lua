@@ -25,8 +25,9 @@ character_treenode.draw = function(runtime_config, name, mainjob, subjob)
 
                 character_treenode.draw_combo(runtime_config, name, setting_array_name, setting_name, setting_values, selected_value);
             end
-
+		
         end);
+		imgui.TreePop()
     end
 end
 
