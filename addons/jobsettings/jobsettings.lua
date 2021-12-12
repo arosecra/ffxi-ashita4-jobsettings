@@ -10,7 +10,6 @@ require('common');
 
 local libs2config = require('org_github_arosecra/config');
 local libs2imgui = require('org_github_arosecra/imgui');
-local jobs = require('org_github_arosecra/jobs');
 local macros_configuration = require('org_github_arosecra/macros/macros_configuration');
 
 local setting = require('setting');
@@ -43,8 +42,8 @@ ashita.events.register('d3d_beginscene', 'jobsettings_beginscene_callback1', fun
 	local party = memoryManager:GetParty();
 	
 	for i=0,5 do
-		local mainjob = jobs[party:GetMemberMainJob(i)];
-		local subjob = jobs[party:GetMemberSubJob(i)];
+		local mainjob = AshitaCore:GetResourceManager():GetString("jobs.names_abbr", party:GetMemberMainJob(i));
+		local subjob = AshitaCore:GetResourceManager():GetString("jobs.names_abbr", party:GetMemberSubJob(i));
 		local name = party:GetMemberName(i);
         if mainjob ~= nil and name ~= nil then
             setting.default_settings_for_char(runtime_config, name, mainjob, subjob);
@@ -66,6 +65,8 @@ ashita.events.register('d3d_present', 'jobsettings_present_cb', function ()
 	libs2imgui.set_left_drawer_window(addon.name);
     if jobsettings_window.is_open then
         if imgui.Begin(addon.name, jobsettings_window.is_open, windowStyleFlags) then
+			imgui.Text(addon.name)
+			imgui.SameLine();
             imgui.SetCursorPosX(450);
             if(imgui.SmallButton("v")) then
                 jobsettings_window.is_open = false;
@@ -75,8 +76,8 @@ ashita.events.register('d3d_present', 'jobsettings_present_cb', function ()
             local party = memoryManager:GetParty();
            
             for i=0,5 do
-                local mainjob = jobs[party:GetMemberMainJob(i)];
-                local subjob = jobs[party:GetMemberSubJob(i)];
+				local mainjob = AshitaCore:GetResourceManager():GetString("jobs.names_abbr", party:GetMemberMainJob(i));
+				local subjob = AshitaCore:GetResourceManager():GetString("jobs.names_abbr", party:GetMemberSubJob(i));
                 local name = party:GetMemberName(i);
 
                 if mainjob ~= nil and name ~= nil then --alter egos have no job
