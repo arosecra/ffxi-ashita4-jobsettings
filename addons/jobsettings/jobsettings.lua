@@ -110,7 +110,11 @@ ashita.events.register('d3d_beginscene', 'jobsettings_beginscene_callback1', fun
 		local subjob = AshitaCore:GetResourceManager():GetString("jobs.names_abbr", party:GetMemberSubJob(i));
 		local name = party:GetMemberName(i);
         if mainjob ~= nil and name ~= nil then
-            --setting.default_settings_for_char(config, name, mainjob, subjob);
+			local last_known_job = config.runtime_config.last_known_jobs[name]
+			if last_known_job == nil or last_known_job ~= mainjob then
+				config.runtime_config.last_known_jobs[name] = mainjob
+				setting.default_settings_for_char(config, name, mainjob, subjob);
+			end
         end
 	end
 end);
