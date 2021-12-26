@@ -9,52 +9,52 @@ local setting = require('setting');
 local character_treenode = {};
 
 
-character_treenode.draw = function(runtime_config, name, mainjob, subjob)
+character_treenode.draw = function(config, name, mainjob, subjob)
     if imgui.TreeNode(name .. ' (' .. mainjob .. ')') then
-        local settings = libs2config.get_string_table(addon.name, mainjob, "Settings");
-        settings:each(function(setting_array_name, setting_index)
-            local setting_name = AshitaCore:GetConfigurationManager():GetString(addon.name, "Settings", setting_array_name .. '.Name');
-            local setting_values = libs2config.get_string_table(addon.name, "Settings", setting_array_name .. '.Values');
+        local settingsForJob = config.settings.jobs[mainjob]
+		if settingsForJob ~= nil then
+			settingsForJob:each(function(setting_array_name, setting_index)
+				local sequence = config.settings.sequences[setting_array_name]
 
-            if setting_name ~= nil and setting_values ~= nil then
-
-                local selected_value = ""
-                if runtime_config[name] ~= nil and runtime_config[name][setting_name] ~= nil then
-                    selected_value = setting_values[runtime_config[name][setting_name]]
-                end
-
-                character_treenode.draw_combo(runtime_config, name, setting_array_name, setting_name, setting_values, selected_value);
-            end
-		
-        end);
+				if sequence ~= nil and sequence.Name ~= nil and sequence.Values ~= nil then
+					character_treenode.draw_combo(config, name, setting_array_name, sequence);
+				end
+			
+			end);
+		end
 		imgui.TreePop()
     end
 end
 
-character_treenode.draw_combo = function(runtime_config, name, setting_array_name, setting_name, setting_values, selected_value)
+character_treenode.draw_combo = function(config, name, setting_array_name, sequence)
 
-    if imgui.BeginCombo(setting_name, selected_value, 0) then
-        for j=1,#setting_values do
-            character_treenode.draw_select(runtime_config, name, setting_array_name, setting_name, j, setting_values[j])
+	local real_selected_value = ""
+	if config.runtime_config.selections[name] ~= nil and config.runtime_config.selections[name][setting_array_name] ~= nil then
+		local selected_index = config.runtime_config.selections[name][setting_array_name]
+		real_selected_value = sequence.Values[selected_index]
+	end
+
+    if imgui.BeginCombo(sequence.Name, real_selected_value, 0) then
+        for j=1,#sequence.Values do
+			local selected = real_selected_value == sequence.Values[j];
+			imgui.PushID(name .. sequence.Name .. sequence.Values[j]);
+			if imgui.Selectable(sequence.Values[j], selected) then
+				if config.runtime_config.selections[name] == nil then
+					config.runtime_config.selections[name] = {}
+				end
+				config.runtime_config.selections[name][setting_array_name] = j;
+				local macro_id = sequence[sequence.Values[j]]
+				setting.run_macro(setting_array_name, sequence.Name, sequence.Values[j], name, macro_id);
+			end
+		
+			if selected then
+				imgui.SetItemDefaultFocus();
+			end
+			imgui.PopID();
         end
         imgui.EndCombo();
     end
 
-end
-
-
-character_treenode.draw_select = function(runtime_config, name, setting_array_name, setting_name, index, setting_value)
-    local selected = runtime_config[name][setting_name] == index;
-    imgui.PushID(name .. setting_name .. setting_value);
-    if imgui.Selectable(setting_value, selected) then
-        runtime_config[name][setting_name] = index;
-        setting.run_macro(setting_array_name, setting_name, setting_value, name);
-    end
-
-    if selected then
-        imgui.SetItemDefaultFocus();
-    end
-    imgui.PopID();
 end
 
 return character_treenode;

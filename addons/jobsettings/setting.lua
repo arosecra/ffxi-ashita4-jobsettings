@@ -34,18 +34,17 @@ setting.find_and_apply_default = function(runtime_config, name, setting_array_na
     end
 end
 
-setting.run_macro = function(setting_array_name, setting_name, setting_value, name)
-    local macro_id = AshitaCore:GetConfigurationManager():GetString(addon.name, "Settings", setting_array_name .. '.' .. setting_value .. '.Macro');
+setting.run_macro = function(setting_array_name, setting_name, setting_value, name, macro_id)
 
     local parameters = T{Name = name}
-    local additional_parameters = libs2config.get_string_table(addon.name, "Settings", setting_array_name .. '.Parameters')
-    if additional_parameters ~= nil then
-        --parameters = parameters:extend(additional_parameters)
-
-        additional_parameters:each(function(value, key)
-            parameters[tostring(key)] = value;
-        end);
-    end
+    --local additional_parameters = libs2config.get_string_table(addon.name, "Settings", setting_array_name .. '.Parameters')
+    --if additional_parameters ~= nil then
+    --    --parameters = parameters:extend(additional_parameters)
+	--
+    --    additional_parameters:each(function(value, key)
+    --        parameters[tostring(key)] = value;
+    --    end);
+    --end
 
     if macro_id ~= nil then
         local macro = macros_configuration.get_macro_by_id(macro_id)

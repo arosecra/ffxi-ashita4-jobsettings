@@ -8,7 +8,6 @@ addon.link      = '';
 local imgui = require('imgui');
 require('common');
 
-local libs2config = require('org_github_arosecra/config');
 local libs2imgui = require('org_github_arosecra/imgui');
 local macros_configuration = require('org_github_arosecra/macros/macros_configuration');
 
@@ -19,21 +18,86 @@ local jobsettings_window = {
     is_open                 = false
 };
 
-local runtime_config = {
+local config = {
+	runtime_config = {
+		selections = T{},
+		last_known_jobs = T{}
+	}
+}
 
-};
+
+local LoadFile = function(path)
+    if not string.match(path, '.lua') then
+        path = path .. '.lua';
+    end
+    local filePath = path;
+	
+    local func, loadError = loadfile(filePath);
+    if (not func) then
+        print (loadError);
+        return nil;
+    end
+
+    local fileValue = nil;
+    local success, execError = pcall(function ()
+        fileValue = func();
+    end);
+    if (not success) then
+        print (execError);
+        return nil;
+    end
+
+    return fileValue;
+end
 
 ashita.events.register('load', 'jobsettings_load_cb', function ()
-    print("[jobsettings] 'load' event was called.");
-	AshitaCore:GetConfigurationManager():Load(addon.name, 'jobsettings\\jobsettings.ini');
     macros_configuration.load();
+	
+	local func, err = LoadFile(AshitaCore:GetInstallPath() .. '/config/jobsettings/config')
+	if func then
+		config.settings = func
+	else
+		print(err)
+	end
+	
+	print(config.settings)
 end);
 
 ashita.events.register('command', 'jobsettings_command_cb', function (e)
     if (not e.command:startswith('/jobsettings') and not e.command:startswith('/js')) then
 		return;
     end
-    jobsettings_window.is_open = not jobsettings_window.is_open;
+	
+    local args = e.command:argsquoted();
+            
+	if args[2] == 'cycle' then
+		local char_name = args[3]
+		local setting_array_name = args[4]
+		local sequence = config.settings.sequences[setting_array_name]
+		local setting_values = sequence.Values
+		
+		local index = 0
+		if config.runtime_config.selections[char_name] ~= nil and config.runtime_config.selections[char_name][setting_array_name] ~= nil then
+            index = config.runtime_config.selections[char_name][setting_array_name]
+        end
+		
+		index = index + 1
+		if index > #sequence.Values then
+			index = 1
+		end
+		
+		if config.runtime_config.selections[char_name] == nil then
+			config.runtime_config.selections[char_name] = {}
+		end
+		
+        config.runtime_config.selections[char_name][setting_array_name] = index;
+		local setting_value = sequence.Values[index]
+		local macro_id = sequence[sequence.Values[index]]
+        setting.run_macro(setting_array_name, setting_name, setting_value, char_name, macro_id);
+	
+	elseif #args == 1 then
+		jobsettings_window.is_open = not jobsettings_window.is_open;
+	end
     e.blocked = true;
 end);
 
@@ -46,11 +110,10 @@ ashita.events.register('d3d_beginscene', 'jobsettings_beginscene_callback1', fun
 		local subjob = AshitaCore:GetResourceManager():GetString("jobs.names_abbr", party:GetMemberSubJob(i));
 		local name = party:GetMemberName(i);
         if mainjob ~= nil and name ~= nil then
-            setting.default_settings_for_char(runtime_config, name, mainjob, subjob);
+            --setting.default_settings_for_char(config, name, mainjob, subjob);
         end
 	end
 end);
-
 
 ashita.events.register('d3d_present', 'jobsettings_present_cb', function ()
 	
@@ -82,7 +145,7 @@ ashita.events.register('d3d_present', 'jobsettings_present_cb', function ()
 
                 if mainjob ~= nil and name ~= nil then --alter egos have no job
                 
-                    character_treenode.draw(runtime_config, name, mainjob, subjob);
+                    character_treenode.draw(config, name, mainjob, subjob);
                 end
             end
 
