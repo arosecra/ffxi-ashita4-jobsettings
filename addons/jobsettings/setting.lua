@@ -10,7 +10,11 @@ setting.default_settings_for_char = function(config, name, mainjob, subjob)
 			settingsForJob:each(function(setting_array_name, setting_index)
 				local sequence = config.settings.sequences[setting_array_name]
 
-				if sequence ~= nil and sequence.Name ~= nil and sequence.Values ~= nil then
+				if sequence ~= nil and 
+				   sequence.Name ~= nil and 
+				   sequence.Values ~= nil and 
+				   ( config.runtime_config.selections[name] == nil or 
+				   config.runtime_config.selections[name][setting_array_name] == nil) then
 					for j=1,#sequence.Values do
 						if sequence.Values[j] == sequence.Default then
 							if config.runtime_config.selections[name] == nil then
